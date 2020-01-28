@@ -99,23 +99,23 @@ long LinuxParser::UpTime() {
     linestream >> upTime >> idleTime ;
   }
   return  stol(upTime);
+}
+
+// Read and return CPU utilization
+vector<string> LinuxParser::CpuUtilization() { 
+  string line, value;
+  vector<string> cpuUtil;
+  std::ifstream filestream(kProcDirectory + kStatFilename);
+  if (filestream.is_open()) {
+    // CPU utilization information is in the first liene of the file
+    std::getline(filestream, line);
+    std::istringstream linestream(line);
+    while (linestream >> value) {
+       cpuUtil.push_back(value); 
+    }
   }
-
-// TODO: Read and return the number of jiffies for the system
-long LinuxParser::Jiffies() { return 0; }
-
-// TODO: Read and return the number of active jiffies for a PID
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
-
-// TODO: Read and return the number of active jiffies for the system
-long LinuxParser::ActiveJiffies() { return 0; }
-
-// TODO: Read and return the number of idle jiffies for the system
-long LinuxParser::IdleJiffies() { return 0; }
-
-// TODO: Read and return CPU utilization
-vector<string> LinuxParser::CpuUtilization() { return {}; }
+  return cpuUtil;
+}
 
 // Read and return the total number of processes
 int LinuxParser::TotalProcesses() {
@@ -202,7 +202,6 @@ string LinuxParser::Uid(int pid) {
 // Return User name associated with a process
 string LinuxParser::User(int uid) { 
   string key, value, user, line, x ;
-  //std::cout<< "mier\n";
   x =  "x";
   std::ifstream filestream(kPasswordPath);
   if (filestream.is_open()) {
@@ -220,6 +219,34 @@ string LinuxParser::User(int uid) {
   return user;
 }
 
-// TODO: Read and return the uptime of a process
+// Read and return the uptime of a process
+long LinuxParser::UpTime(int pid) { 
+  int counter = 0;
+  string line, startTime;
+  std::ifstream stream(kProcDirectory + to_string(pid) + kStatFilename);
+  if (stream.is_open()) {
+    std::getline(stream, line);
+    std::istringstream linestream(line);
+    // Start time is 22th object in the line
+    // http://man7.org/linux/man-pages/man5/proc.5.html
+    while (counter < 22) {
+      linestream >> startTime;
+      counter ++;
+    }                  
+  }
+  return std::stol(startTime);
+}
+ 
+ /* Not used functions */
+// TODO: Read and return the number of jiffies for the system
+long LinuxParser::Jiffies() { return 0; }
+
+// TODO: Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::UpTime(int pid[[maybe_unused]]) { return 0; }
+long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
+
+// TODO: Read and return the number of active jiffies for the system
+long LinuxParser::ActiveJiffies() { return 0; }
+
+// TODO: Read and return the number of idle jiffies for the system
+long LinuxParser::IdleJiffies() { return 0; }
