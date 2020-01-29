@@ -4,7 +4,5 @@
 #include <iostream>
 int main() {
   System system;
-  std::cout << sysconf(_SC_CLK_TCK) <<"\n\n";
-  NCursesDisplay::Display(system);
-  
+  NCursesDisplay::Display(system); 
 }

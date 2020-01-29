@@ -28,8 +28,20 @@ void Process::SetUid() {
     this->uid_ = stoi(LinuxParser::Uid(this->pid_)); 
 }
 
-// TODO: Return this process's CPU utilization
-float Process::CpuUtilization() { return 0; }
+// Return this process's CPU utilization
+float Process::CpuUtilization() { 
+    vector<string> cpuInfo = LinuxParser::ProcessCpuUtilization(this->pid_);
+    /* The vector holds the following information
+     vector[13] = utime
+     vector[14] = stime
+     vector[15] = cutime
+     vector[16] = cstime
+     vector[22] = starttime
+     */
+    int totalTime =  std::stoi(cpuInfo[13])+ std::stoi(cpuInfo[14])+std::stoi(cpuInfo[15])+ std::stoi(cpuInfo[16]);
+    float seconds = LinuxParser::UpTime() - std::stoi(cpuInfo[21])/float(sysconf(_SC_CLK_TCK));
+    return totalTime/float(sysconf(_SC_CLK_TCK))/seconds;
+}
 
 // Return the command that generated this process
 string Process::Command() { 
@@ -65,8 +77,7 @@ long int Process::UpTime() {
     return startTime;
 }
 
-// TODO: Overload the "less than" comparison operator for Process objects
-// REMOVE: [[maybe_unused]] once you define the function
+// Overload the "less than" comparison operator for Process objects
 bool Process::operator<(Process const& a) const { 
     return (this->memory_ > a.memory_);
 }

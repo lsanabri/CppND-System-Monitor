@@ -107,7 +107,23 @@ vector<string> LinuxParser::CpuUtilization() {
   vector<string> cpuUtil;
   std::ifstream filestream(kProcDirectory + kStatFilename);
   if (filestream.is_open()) {
-    // CPU utilization information is in the first liene of the file
+    // CPU utilization information is in the first line of the system file
+    // and the only file of the process stat file
+    std::getline(filestream, line);
+    std::istringstream linestream(line);
+    while (linestream >> value) {
+       cpuUtil.push_back(value); 
+    }
+  }
+  return cpuUtil;
+}
+
+// Read and return process CPU utilization
+vector<string> LinuxParser::ProcessCpuUtilization(int pid){
+  string line, value;
+  vector<string> cpuUtil;
+  std::ifstream filestream(kProcDirectory + to_string(pid) + kStatFilename);
+  if (filestream.is_open()) {
     std::getline(filestream, line);
     std::istringstream linestream(line);
     while (linestream >> value) {
